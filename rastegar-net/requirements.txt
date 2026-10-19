@@ -3,3 +3,4 @@ Flask-SocketIO>=5.3
 simple-websocket>=1.0
 # برای اجرای HTTPS با گواهی خودامضا (SSL_ADHOC=1) لازم است:
 cryptography>=42
+gunicorn
