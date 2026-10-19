@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}رستگار نت{% endblock %}</title>
+  <meta name="theme-color" content="#0b2f28">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+  {% include '_icons.html' %}
+  {% block body %}{% endblock %}
+
+  <dialog id="dlg" class="dlg">
+    <form method="dialog" id="dlg-form" autocomplete="off">
+      <h3 id="dlg-title"></h3>
+      <p id="dlg-text" class="muted"></p>
+      <div id="dlg-fields"></div>
+      <div class="dlg-actions">
+        <button type="submit" value="ok" class="btn primary" id="dlg-ok">تأیید</button>
+        <button type="button" class="btn ghost" id="dlg-cancel">انصراف</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

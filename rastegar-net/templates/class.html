@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}کلاس {{ room }} | رستگار نت{% endblock %}
+{% block bodyclass %}page-class{% endblock %}
+
+{% block body %}
+<script type="application/json" id="cfg">{{ {'room': room, 'role': role, 'name': name, 'ice': ice, 'kickMinutes': kick_minutes}|tojson }}</script>
+
+<!-- ───── پیش از ورود: بررسی دوربین و میکروفن ───── -->
+<section id="prejoin" class="prejoin">
+  <div class="prejoin-card">
+    <div class="brand">
+      <span class="logo-mark" aria-hidden="true">ر</span>
+      <span class="brand-name">رستگار نت</span>
+      <span class="room-tag">کلاس {{ room }}</span>
+    </div>
+
+    <div class="preview">
+      <video id="pre-video" autoplay playsinline muted></video>
+      <div id="pre-off" class="preview-off"><svg class="i xl"><use href="#i-cam-off"/></svg><span>دوربین خاموش است</span></div>
+    </div>
+
+    {% if role == 'teacher' %}
+    <label class="field">
+      <span>نام نمایشی شما در کلاس</span>
+      <input id="pre-name" type="text" maxlength="40" placeholder="مثلاً: آقای احمدی">
+    </label>
+    {% else %}
+    <p class="prejoin-who">با نام <b>{{ name }}</b> وارد می‌شوید.</p>
+    {% endif %}
+
+    <div class="pre-toggles">
+      <button type="button" id="pre-mic" class="ctl on" aria-pressed="true"><svg class="i"><use href="#i-mic"/></svg><span>میکروفن روشن</span></button>
+      <button type="button" id="pre-cam" class="ctl on" aria-pressed="true"><svg class="i"><use href="#i-cam"/></svg><span>دوربین روشن</span></button>
+    </div>
+    <p id="pre-note" class="note" hidden></p>
+
+    <button type="button" id="join-btn" class="btn primary lg block">ورود به کلاس</button>
+  </div>
+</section>
+
+<!-- ───── خود کلاس ───── -->
+<div id="app" class="app" hidden>
+  <header class="topbar">
+    <div class="brand compact">
+      <span class="logo-mark" aria-hidden="true">ر</span>
+      <span class="brand-name">رستگار نت</span>
+    </div>
+    <span class="room-tag">کلاس {{ room }}</span>
+    <span id="role-chip" class="chip"></span>
+    <span id="conn" class="conn" title="وضعیت اتصال"><i></i><span>متصل</span></span>
+    <span class="grow"></span>
+    {% if role == 'teacher' %}
+    <a class="btn ghost small on-dark" href="{{ url_for('admin_page') }}" target="_blank" rel="noopener"><svg class="i"><use href="#i-shield"/></svg>پنل مدیریت</a>
+    {% endif %}
+  </header>
+
+  <div class="layout">
+    <section class="stage" aria-label="تصویر شرکت‌کنندگان">
+      <div id="grid" class="grid" data-n="0"></div>
+      <div id="share-banner" class="share-banner" hidden>
+        <svg class="i"><use href="#i-screen"/></svg><span>صفحهٔ شما در حال نمایش برای کلاس است</span>
+        <button type="button" id="share-stop" class="btn danger small">توقف</button>
+      </div>
+    </section>
+
+    <aside id="side" class="side" aria-label="گفتگو و حاضرین">
+      <div class="side-tabs" role="tablist">
+        <button type="button" class="stab is-active" role="tab" data-tab="chat"><svg class="i"><use href="#i-chat"/></svg>گفتگو<span id="chat-badge" class="badge" hidden>0</span></button>
+        <button type="button" class="stab" role="tab" data-tab="people"><svg class="i"><use href="#i-users"/></svg>{% if role == 'teacher' %}حاضرین و غایبین{% else %}حاضرین{% endif %}<span id="people-count" class="count-tag"></span></button>
+        {% if role == 'teacher' %}
+        <button type="button" class="stab" role="tab" data-tab="control"><svg class="i"><use href="#i-sliders"/></svg>کنترل کلاس</button>
+        {% endif %}
+        <button type="button" class="icon-btn side-close" id="side-close" aria-label="بستن پنل"><svg class="i"><use href="#i-x"/></svg></button>
+      </div>
+
+      <div class="pane" id="pane-chat">
+        <div id="chat-log" class="chat-log" aria-live="polite"></div>
+        <div id="chat-off" class="chat-off" hidden><svg class="i"><use href="#i-chat-off"/></svg>گفتگو توسط معلم بسته شده است.</div>
+        <form id="chat-form" class="chat-form" autocomplete="off">
+          <input id="chat-input" type="text" maxlength="1000" placeholder="پیام خود را بنویسید…" aria-label="پیام">
+          <button type="submit" class="icon-btn send" aria-label="ارسال"><svg class="i"><use href="#i-send"/></svg></button>
+        </form>
+      </div>
+
+      <div class="pane" id="pane-people" hidden>
+        <div class="list-head"><h4>حاضرین <span id="present-count" class="count-tag"></span></h4></div>
+        <div id="people-list" class="people-list"></div>
+        {% if role == 'teacher' %}
+        <div class="list-head"><h4>غایبین <span id="absent-count" class="count-tag"></span></h4></div>
+        <div id="absent-list" class="people-list"></div>
+        {% endif %}
+      </div>
+
+      {% if role == 'teacher' %}
+      <div class="pane" id="pane-control" hidden>
+        <div class="list-head"><h4>دسترسی دانش‌آموزان این کلاس</h4></div>
+        <p class="muted small">با خاموش کردن هر مورد، آن قابلیت برای همهٔ دانش‌آموزان بسته می‌شود. برای هر نفر هم می‌توانید جدا از تب «حاضرین» تغییر دهید.</p>
+        <div id="ctl-switches" class="switches"></div>
+        <div class="ctl-actions">
+          <button type="button" class="btn small" id="mute-all"><svg class="i"><use href="#i-mic-off"/></svg>بستن میکروفن همه</button>
+          <button type="button" class="btn small" id="unmute-all"><svg class="i"><use href="#i-mic"/></svg>باز کردن میکروفن همه</button>
+          <button type="button" class="btn small danger-outline" id="clear-chat"><svg class="i"><use href="#i-trash"/></svg>پاک کردن گفتگو</button>
+        </div>
+        <p class="muted small">دانش‌آموز اخراج‌شده تا {{ kick_minutes }} دقیقه نمی‌تواند وارد این کلاس شود.</p>
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+
+  <footer class="dock">
+    <button type="button" id="btn-mic" class="ctl on" aria-label="میکروفن"><svg class="i"><use href="#i-mic"/></svg><span>میکروفن</span></button>
+    <button type="button" id="btn-cam" class="ctl on" aria-label="دوربین"><svg class="i"><use href="#i-cam"/></svg><span>دوربین</span></button>
+    <button type="button" id="btn-share" class="ctl" aria-label="اشتراک صفحه"><svg class="i"><use href="#i-screen"/></svg><span>اشتراک صفحه</span></button>
+    <button type="button" id="btn-side" class="ctl" aria-label="گفتگو و حاضرین"><svg class="i"><use href="#i-chat"/></svg><span>گفتگو</span><b id="dock-badge" class="dock-badge" hidden>0</b></button>
+    <button type="button" id="btn-leave" class="ctl leave" aria-label="خروج از کلاس"><svg class="i"><use href="#i-logout"/></svg><span>خروج</span></button>
+  </footer>
+</div>
+
+<div id="overlay" class="overlay" hidden>
+  <div class="overlay-card">
+    <h2 id="overlay-title"></h2>
+    <p id="overlay-text"></p>
+    <a id="overlay-link" class="btn primary" href="/">بازگشت</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/class.js') }}"></script>
+{% endblock %}

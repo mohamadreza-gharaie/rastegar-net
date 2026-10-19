@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}رستگار نت | پنل مدیریت{% endblock %}
+{% block bodyclass %}page-admin{% endblock %}
+
+{% block body %}
+<header class="admin-bar">
+  <div class="brand">
+    <span class="logo-mark" aria-hidden="true">ر</span>
+    <span class="brand-name">رستگار نت</span>
+    <span class="brand-sub">پنل مدیریت</span>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="بخش‌های مدیریت">
+    <button type="button" class="tab is-active" role="tab" data-tab="overview">کلاس‌ها</button>
+    <button type="button" class="tab" role="tab" data-tab="users">کاربران</button>
+    <button type="button" class="tab" role="tab" data-tab="attendance">حضور و غیاب</button>
+  </nav>
+  <div class="admin-bar-end">
+    <span id="conn" class="conn" title="وضعیت اتصال زنده"><i></i><span>در حال اتصال…</span></span>
+    <button type="button" id="logout" class="btn ghost on-dark"><svg class="i"><use href="#i-logout"/></svg>خروج</button>
+  </div>
+</header>
+
+<main class="admin-main" data-kick="{{ kick_minutes }}">
+
+  <!-- ───── کلاس‌ها ───── -->
+  <section id="tab-overview" class="tabpane" role="tabpanel">
+    <div class="pane-head">
+      <h1>کلاس‌ها</h1>
+      <p class="muted">وضعیت زندهٔ ۹ کلاس. دسترسی‌های دانش‌آموزان هر کلاس را همین‌جا یا از داخل کلاس عوض کنید.</p>
+    </div>
+    <div id="rooms-grid" class="rooms-grid"></div>
+  </section>
+
+  <!-- ───── کاربران ───── -->
+  <section id="tab-users" class="tabpane" role="tabpanel" hidden>
+    <div class="pane-head">
+      <h1>کاربران کلاس</h1>
+      <p class="muted">هر دانش‌آموز با نام و رمز عبور مخصوص خودش وارد کلاس می‌شود. بدون رمز، ورود ممکن نیست.</p>
+    </div>
+    <div id="users-pills" class="pills" role="tablist" aria-label="انتخاب کلاس"></div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>افزودن به کلاس <span class="room-tag" id="add-room-label"></span></h3>
+        <form id="add-form" class="stack" autocomplete="off">
+          <label class="field">
+            <span>نام و نام خانوادگی</span>
+            <input id="add-name" type="text" maxlength="40" required>
+          </label>
+          <label class="field">
+            <span>رمز عبور کلاس</span>
+            <div class="pw">
+              <input id="add-pass" type="text" maxlength="64" required dir="ltr" class="ltr-input">
+              <button type="button" class="btn ghost small" id="gen-pass">ساخت رمز</button>
+            </div>
+          </label>
+          <button type="submit" class="btn primary"><svg class="i"><use href="#i-plus"/></svg>افزودن کاربر</button>
+        </form>
+
+        <details class="bulk">
+          <summary>افزودن گروهی</summary>
+          <p class="muted small">هر خط یک نفر. اگر بعد از نام یک ویرگول و رمز بنویسید، همان رمز ثبت می‌شود؛ وگرنه رمز خودکار ساخته می‌شود.</p>
+          <textarea id="bulk-text" rows="7" placeholder="علی رضایی&#10;سارا احمدی, rz4821&#10;محمد کریمی"></textarea>
+          <button type="button" id="bulk-btn" class="btn"><svg class="i"><use href="#i-users"/></svg>افزودن همه</button>
+        </details>
+      </div>
+
+      <div class="card">
+        <h3>فهرست کاربران <span class="count-tag" id="users-count"></span></h3>
+        <div id="users-table" class="users-table"></div>
+      </div>
+    </div>
+
+    <div id="created-box" class="card created" hidden>
+      <div class="created-head">
+        <h3>رمزهای ساخته‌شده</h3>
+        <div class="created-actions">
+          <button type="button" class="btn small" id="created-copy"><svg class="i"><use href="#i-copy"/></svg>کپی همه</button>
+          <button type="button" class="btn small" id="created-print"><svg class="i"><use href="#i-printer"/></svg>چاپ</button>
+          <button type="button" class="btn ghost small" id="created-close">بستن</button>
+        </div>
+      </div>
+      <p class="muted small">رمزها فقط همین یک‌بار نمایش داده می‌شوند؛ آن‌ها را یادداشت یا چاپ کنید. بعداً فقط می‌توانید رمز جدید بگذارید.</p>
+      <div id="created-list" class="created-list"></div>
+    </div>
+  </section>
+
+  <!-- ───── حضور و غیاب ───── -->
+  <section id="tab-attendance" class="tabpane" role="tabpanel" hidden>
+    <div class="pane-head">
+      <h1>حضور و غیاب</h1>
+      <p class="muted">فهرست حاضران و غایبان هر کلاس، هم‌اکنون و در هر روز.</p>
+    </div>
+    <div id="att-pills" class="pills" role="tablist" aria-label="انتخاب کلاس"></div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3>هم‌اکنون <span class="room-tag" id="live-room-label"></span></h3>
+        <div id="live-lists"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>گزارش روز</h3>
+          <input type="date" id="att-date" class="date-input" aria-label="تاریخ گزارش">
+        </div>
+        <div id="day-report"></div>
+      </div>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

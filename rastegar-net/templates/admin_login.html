@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}رستگار نت | ورود مدیران{% endblock %}
+{% block bodyclass %}page-admin-login{% endblock %}
+
+{% block body %}
+<main class="center-screen">
+  <form id="admin-login-form" class="login-card narrow" autocomplete="off" novalidate>
+    <div class="brand dark">
+      <span class="logo-mark" aria-hidden="true">ر</span>
+      <span class="brand-name">رستگار نت</span>
+    </div>
+    <h2>پنل مدیریت</h2>
+    <p class="muted">مخصوص مدیران و معلمان. برای ورود فقط رمز عبور لازم است.</p>
+
+    <label class="field">
+      <span>رمز عبور مدیریت</span>
+      <div class="pw">
+        <input id="admin-pass" type="password" maxlength="128" autocomplete="current-password" autofocus required>
+        <button type="button" class="icon-btn pw-toggle" id="pw-toggle" aria-label="نمایش رمز عبور"><svg class="i"><use href="#i-eye"/></svg></button>
+      </div>
+    </label>
+
+    <p id="admin-error" class="form-error" role="alert" hidden></p>
+    <button type="submit" id="admin-btn" class="btn primary lg block">ورود به پنل</button>
+    <a class="back-link" href="{{ url_for('index') }}">بازگشت به صفحهٔ دانش‌آموزان</a>
+  </form>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

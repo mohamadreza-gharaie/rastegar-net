@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}رستگار نت | ورود به کلاس{% endblock %}
+{% block bodyclass %}page-landing{% endblock %}
+
+{% block body %}
+<main class="landing">
+  <section class="landing-main">
+    <div class="brand">
+      <span class="logo-mark" aria-hidden="true">ر</span>
+      <span class="brand-name">رستگار نت</span>
+    </div>
+
+    <h1 class="landing-title">کلاس خود را از ساختمان انتخاب کنید</h1>
+    <p class="landing-lead">هر کلاس یک اتاق دارد. اتاق خودتان را انتخاب کنید و با نام و رمزی که مدیر به شما داده وارد شوید.</p>
+
+    <div class="building" role="radiogroup" aria-label="انتخاب کلاس">
+      <div class="roof" aria-hidden="true"></div>
+      {% for floor, rooms in floors|reverse %}
+      <div class="floor">
+        <div class="floor-label">طبقهٔ {{ floor }}</div>
+        <div class="doors">
+          {% for r in rooms %}
+          <button type="button" class="door{{ ' is-selected' if r == selected }}" data-room="{{ r }}"
+                  role="radio" aria-checked="{{ 'true' if r == selected else 'false' }}">{{ r }}</button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="landing-side">
+    <form id="login-form" class="login-card" autocomplete="off" novalidate>
+      <h2 id="login-title">ورود به کلاس</h2>
+
+      {% if msg == 'banned' %}
+      <div class="alert warn" role="alert">شما از این کلاس اخراج شده‌اید و تا {{ kick_minutes }} دقیقه پس از اخراج نمی‌توانید دوباره وارد شوید.</div>
+      {% elif msg == 'login' %}
+      <div class="alert info" role="status">برای ورود به این کلاس، نام و رمز عبور کلاس را وارد کنید.</div>
+      {% endif %}
+
+      <p id="login-hint" class="muted">ابتدا کلاس خود را از ساختمان انتخاب کنید.</p>
+
+      <label class="field">
+        <span>نام و نام خانوادگی</span>
+        <input id="login-name" name="name" type="text" maxlength="40" placeholder="همان نامی که مدیر ثبت کرده است" autocomplete="off" required>
+      </label>
+
+      <label class="field">
+        <span>رمز عبور کلاس</span>
+        <div class="pw">
+          <input id="login-pass" name="password" type="password" maxlength="64" autocomplete="off" required>
+          <button type="button" class="icon-btn pw-toggle" id="pw-toggle" aria-label="نمایش رمز عبور"><svg class="i"><use href="#i-eye"/></svg></button>
+        </div>
+      </label>
+
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+
+      <button type="submit" id="login-btn" class="btn primary lg block">ورود به کلاس</button>
+      <p class="muted small">رمز عبور را مدیر یا معلم کلاس به شما می‌دهد. بدون رمز، ورود ممکن نیست.</p>
+    </form>
+
+    <a class="admin-link" href="{{ url_for('admin_login_page') }}"><svg class="i"><use href="#i-shield"/></svg>ورود مدیران و معلمان</a>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
