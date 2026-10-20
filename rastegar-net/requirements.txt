@@ -1,6 +1,6 @@
 Flask>=3.0
 Flask-SocketIO>=5.3
 simple-websocket>=1.0
-# برای اجرای HTTPS با گواهی خودامضا (SSL_ADHOC=1) لازم است:
+gunicorn>=22.0
+# فقط برای اجرای محلی با HTTPS خودامضا (SSL_ADHOC=1) لازم است؛ روی Render لازم نیست
 cryptography>=42
-gunicorn

@@ -1,14 +1,25 @@
+# Blueprint برای Render.com — رستگار نت
+# توجه: دیسک پایدار (برای نگه‌داشتن کاربران و رمزها) فقط روی پلن پولی کار می‌کند.
 services:
   - type: web
     name: rastegar-net
     runtime: python
+    plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --worker-class gthread --workers 1 --threads 100 --timeout 0 app:app
+    # فقط یک worker (وضعیت کلاس‌ها در حافظه است) با تعداد زیادی thread برای اتصال‌های همزمان
+    startCommand: gunicorn --worker-class gthread --workers 1 --threads 100 --timeout 120 --bind 0.0.0.0:$PORT app:app
     healthCheckPath: /healthz
     envVars:
-      - key: ADMIN_PASSWORD
-        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.7
       - key: SECRET_KEY
         generateValue: true
-      - key: SSL_ADHOC
-        value: "0"
+      - key: RASTEGAR_DB
+        value: /var/data/rastegar.db
+      # رمز مدیریت: هنگام ساخت از شما پرسیده می‌شود
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: rastegar-data
+      mountPath: /var/data
+      sizeGB: 1

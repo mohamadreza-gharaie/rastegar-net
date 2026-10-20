@@ -35,10 +35,12 @@ DB_PATH = os.environ.get("RASTEGAR_DB", os.path.join(INSTANCE_DIR, "rastegar.db"
 SSL_ADHOC = os.environ.get("SSL_ADHOC", "") == "1"
 SSL_CERT = os.environ.get("SSL_CERT", "")
 SSL_KEY = os.environ.get("SSL_KEY", "")
-COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "") == "1" or SSL_ADHOC or bool(SSL_CERT)
+# روی Render متغیر RENDER=true به‌طور خودکار تنظیم می‌شود؛ آنجا HTTPS را خود Render می‌دهد
+ON_RENDER = bool(os.environ.get("RENDER"))
+COOKIE_SECURE = os.environ.get("COOKIE_SECURE", "") == "1" or SSL_ADHOC or bool(SSL_CERT) or ON_RENDER
 
-# پشت پروکسی معکوس (nginx و ...) بودن
-TRUST_PROXY = os.environ.get("TRUST_PROXY", "") == "1"
+# پشت پروکسی معکوس (nginx، Render و ...) بودن
+TRUST_PROXY = os.environ.get("TRUST_PROXY", "") == "1" or ON_RENDER
 
 # فقط در صورت نیاز: دامنه‌های مجاز برای Socket.IO (با کاما جدا کنید). خالی = فقط همین سایت
 CORS_ORIGINS = [o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()]
